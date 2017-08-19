@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CensorBuster</title>
+    <script src="./js/jquery-3.2.1.min.js" onload="window.$ = window.jQuery = module.exports;"></script>
+    <script src="./js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div id="email-view" class="form-group text-center">
+        <br>
+        <h2>First, we'll need your email address</h2>
+        <input type="text" id="email" name="email" class="form-control">
+        <br>
+        <button id="continue-email" class="btn btn-default">Continue</button>
+      </div>
+      <!-- <button id="login">Login</button> -->
+      <!-- <button id="connect">Connect</button> -->
+    </div>
+
+    <script>
+     // Cannot include Javascript files as src in <script> tags.
+     // Have to use require to include other JS files as a relative
+     // file to index.js and not index.html
+     require( './js/index.js');
+    </script>
+  </body>
+</html>
