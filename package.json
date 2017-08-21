@@ -28,6 +28,7 @@
     "foreman": "^2.0.0"
   },
   "dependencies": {
+    "classnames": "^2.2.5",
     "electron": "^1.6.11",
     "electron-oauth2": "^3.0.0",
     "nodemailer": "^4.0.1",

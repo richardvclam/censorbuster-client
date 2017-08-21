@@ -1,3 +1,4 @@
+/*
 const ipcRenderer = require('electron').ipcRenderer;
 const api = require('./api.js');
 

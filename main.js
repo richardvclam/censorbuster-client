@@ -2,12 +2,13 @@ const { app, ipcMain, BrowserWindow } = require('electron');
 const electronOauth2 = require('electron-oauth2');
 const path = require('path');
 const url = require('url');
-const oauthConfig = require('./app/oauth-config.js');
+const oauthConfig = require('./src/oauth-config.js');
 
 // Keep a global reference of the window object,
 // else the object will be garbage collected.
 let window;
 
+// Window parameters for the OAuth pop-up window
 const windowParams = {
   alwaysOnTop: true,
   autoHideMenuBar: true,
@@ -26,6 +27,9 @@ const startUrl = process.env.ELECTRON_START_URL || url.format({
 function createWindow() {
   // Create the browser window
   window = new BrowserWindow({ width: 400, height: 600 });
+
+  // Remove the menu bar from the window
+  window.setMenu(null);
 
   // Load the index.html file into the app
   window.loadURL(startUrl);
