@@ -5,13 +5,7 @@
   "main": "main.js",
   "homepage": "./",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "electron": "electron .",
-    "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
-    "dev": "nf start"
+    "dev": "electron ."
   },
   "repository": {
     "type": "git",
@@ -24,16 +18,12 @@
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.1.0",
     "eslint-config-airbnb-base": "^11.3.1",
-    "eslint-plugin-import": "^2.7.0",
-    "foreman": "^2.0.0"
+    "eslint-plugin-import": "^2.7.0"
   },
   "dependencies": {
-    "classnames": "^2.2.5",
     "electron": "^1.6.11",
     "electron-oauth2": "^3.0.0",
-    "nodemailer": "^4.0.1",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-scripts": "^1.0.11"
+    "imap": "^0.8.19",
+    "nodemailer": "^4.0.1"
   }
 }

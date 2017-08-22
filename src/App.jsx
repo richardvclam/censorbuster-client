@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { ipcRenderer } from 'electron';
 import classNames from 'classnames';
 import { validateEmail } from './js/util';
 import logo from './img/logo.svg';
@@ -24,6 +25,7 @@ export default class App extends Component {
   handleSubmit() {
     if (validateEmail(this.state.email)) {
       this.setState({ error: false });
+      ipcRenderer.send('google-oauth', 'getToken');
     } else {
       this.setState({ error: true });
     }

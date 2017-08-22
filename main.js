@@ -1,8 +1,9 @@
 const { app, ipcMain, BrowserWindow } = require('electron');
 const electronOauth2 = require('electron-oauth2');
+const Imap = require('imap');
 const path = require('path');
 const url = require('url');
-const oauthConfig = require('./src/oauth-config.js');
+const oauthConfig = require('./app/oauth-config.js');
 
 // Keep a global reference of the window object,
 // else the object will be garbage collected.
@@ -18,11 +19,6 @@ const windowParams = {
 };
 
 const googleOAuth = electronOauth2(oauthConfig, windowParams);
-const startUrl = process.env.ELECTRON_START_URL || url.format({
-  pathname: path.join(__dirname, '/public/index.html'),
-  protocol: 'file:',
-  slashes: true,
-});
 
 function createWindow() {
   // Create the browser window
@@ -32,7 +28,11 @@ function createWindow() {
   window.setMenu(null);
 
   // Load the index.html file into the app
-  window.loadURL(startUrl);
+  window.loadURL(url.format({
+    pathname: path.join(__dirname, '/app/index.html'),
+    protocol: 'file:',
+    slashes: true,
+  }));
 
   // Start window with dev tools opened
   window.webContents.openDevTools({ detach: true });
@@ -63,4 +63,82 @@ ipcMain.on('google-oauth', (event, arg) => {
     }, (err) => {
       console.log('Error while getting token', err);
     });
+});
+
+ipcMain.on('email-list', (event, arg) => {
+  const imap = new Imap({
+    host: 'imap.gmail.com',
+    port: '993',
+    tls: true,
+    user: 'censorbustorstest1@gmail.com',
+    password: 'cens0r_csulb',
+  });
+
+  // Connect to IMAP mail box
+  imap.once('ready', () => {
+    // Open inbox with read-only set to false so we can modify
+    // the seen flag.
+    imap.openBox('INBOX', false, (err, box) => {
+      console.log('Connected to inbox.');
+      if (err) console.error(err);
+
+      // When a new mail is received...
+      imap.on('mail', (num) => {
+        console.log('New mail received!');
+        // Search for unopened emails
+        imap.search(['UNSEEN'], (err, results) => {
+          if (err) console.error(err);
+
+          if (results.length > 0) {
+            // Fetch from and subjects fields from emails
+            // and mark them as seen.
+            const fetch = imap.fetch(results, {
+              bodies: 'HEADER.FIELDS (FROM SUBJECT)',
+            });
+
+            fetch.on('message', (message, sequenceNum) => {
+              message.on('body', (stream, info) => {
+                let buffer = '';
+
+                // Parse the data from the emails
+                stream.on('data', (chunk) => {
+                  buffer += chunk.toString('utf8');
+                });
+
+                // After finishing parsing, send an email
+                stream.once('end', () => {
+                  const header = Imap.parseHeader(buffer);
+                  const email = header.from[0].match(/<(.*?)>/)[1];
+                  const subject = Imap.parseHeader(buffer).subject[0];
+
+                  if (subject === 'list' || subject === 'LIST') {
+                    event.sender.send('connected', true);
+                    // Open process here!
+                  }
+                });
+              });
+            });
+
+            fetch.once('error', (err) => {
+              console.log(`Fetch error: ${err}`);
+            });
+
+            fetch.once('end', () => {
+              console.log('Done fetching all messages.');
+            });
+          }
+        });
+      });
+    });
+  });
+
+  imap.once('error', (err) => {
+    console.log(err);
+  });
+
+  imap.once('end', () => {
+    console.log('Connection ended');
+  });
+
+  imap.connect();
 });
