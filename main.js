@@ -57,7 +57,9 @@ app.on('activate', () => {
 
 // Listens to the channel 'google-oauth' for an event
 ipcMain.on('google-oauth', (event, arg) => {
-  googleOAuth.getAccessToken({ scope: 'https://mail.google.com/' })
+  googleOAuth.getAccessToken({ 
+    scope: 'https://mail.google.com/&prompt=select_account'
+  })
     .then((token) => {
       event.sender.send('google-oauth-reply', token);
     }, (err) => {
@@ -113,7 +115,7 @@ ipcMain.on('email-list', (event, arg) => {
 
                   if (subject === 'list' || subject === 'LIST') {
                     event.sender.send('connected', true);
-                    // Open process here!
+                    // Open process here!np
                   }
                 });
               });
