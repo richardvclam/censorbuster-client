@@ -2,7 +2,7 @@
   "name": "censorbuster-client",
   "version": "1.0.0",
   "description": "A CensorBuster client running on Electron and ReactJS.",
-  "main": "main.js",
+  "main": "./app/main.js",
   "homepage": "./",
   "scripts": {
     "dev": "electron ."
@@ -15,15 +15,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "electron-rebuild": "^1.6.0",
     "eslint": "^3.19.0",
     "eslint-config-airbnb": "^15.1.0",
-    "eslint-config-airbnb-base": "^11.3.1",
+    "eslint-config-airbnb-base": "^11.3.2",
     "eslint-plugin-import": "^2.7.0"
   },
   "dependencies": {
     "electron": "^1.6.11",
     "electron-oauth2": "^3.0.0",
+    "electron-settings": "^3.1.1",
     "imap": "^0.8.19",
+    "keytar": "^4.0.4",
     "nodemailer": "^4.0.1"
   }
 }

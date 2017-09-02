@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CensorBuster</title>
+    <script src="./js/jquery-3.2.1.min.js" onload="window.$ = window.jQuery = module.exports;"></script>
+    <script src="./js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+  </head>
+  <body>
+    <div class="container">
+      <div id="login" class="mt-4 hide">
+        <div id="email-view" class="form-group text-center">
+          <br>
+          <p class="lead">First, we'll need your email credentials</p>
+          <div class="form-group">
+              <input type="text" id="email" name="email" class="form-control" placeholder="Email">
+              <div class="invalid-feedback">
+                Sorry, the email you've entered is invalid.
+              </div>
+          </div>
+          <div class="form-group">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password">
+          </div>
+          <br>
+          <button id="continue-email" class="btn btn-primary">Continue</button>
+        </div>
+        <div id="uuid-view" class="form-group text-center hide">
+          <br>
+          <p class="lead">Lastly, we'll need your UUID credentials from your invitation email.</p>
+          <div class="form-group">
+              <input type="text" id="uuid" name="uuid" class="form-control" placeholder="UUID">
+          </div>
+          <div class="form-group">
+              <input type="password" id="uuid-password" name="uuid-password" class="form-control" placeholder="Password">
+            </div>
+          <button id="submit-uuid" class="btn btn-primary">Submit</button>
+        </div>
+      </div>
+      <div id="main" class="hide text-center">
+        <br>
+        <button id="connect" class="btn btn-success">Connect</button>
+      </div>
+    </div>
+
+    <script>
+     // Cannot include Javascript files as src in <script> tags.
+     // Have to use require to include other JS files as a relative
+     // file to index.js and not index.html
+     require( './js/app.js');
+    </script>
+  </body>
+</html>
