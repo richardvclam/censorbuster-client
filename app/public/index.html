@@ -29,19 +29,20 @@
         </div>
         <div id="uuid-view" class="form-group text-center hide">
           <br>
-          <p class="lead">Lastly, we'll need your UUID credentials from your invitation email.</p>
+          <p class="lead">Lastly, we'll need your UUID credential from your invitation email.</p>
           <div class="form-group">
               <input type="text" id="uuid" name="uuid" class="form-control" placeholder="UUID">
           </div>
-          <div class="form-group">
-              <input type="password" id="uuid-password" name="uuid-password" class="form-control" placeholder="Password">
-            </div>
           <button id="submit-uuid" class="btn btn-primary">Submit</button>
         </div>
       </div>
       <div id="main" class="hide text-center">
         <br>
         <button id="connect" class="btn btn-success">Connect</button>
+        <div id="loading" class="hide">
+          <p id="loading-label" class="lead">Initating censor busting protocol...</p>
+          <div class="loader mx-auto"></div>
+        </div>
       </div>
     </div>
 

@@ -27,12 +27,12 @@ function sendMail(mailProtocol, message, credentials) {
     auth: {
       user: credentials.username,
       pass: credentials.password,
-    }
+    },
   });
 
-  console.log(mailProtocol);
-  console.log(message);
-  console.log(credentials);
+  // console.log(mailProtocol);
+  // console.log(message);
+  // console.log(credentials);
   const mailOptions = {
     from: message.from,
     to: 'censorbustorstest1@gmail.com',

@@ -5,7 +5,6 @@ const ipcRenderer = require('electron').ipcRenderer;
 let email;
 let password;
 let uuid;
-let uuidPassword;
 
 function showLogin() {
   $('#main').hide();
@@ -45,9 +44,8 @@ $('#continue-email').on('click', () => {
 
 $('#submit-uuid').on('click', () => {
   uuid = $('#uuid').val();
-  uuidPassword = $('#uuid-password').val();
   // Synchronously save user credentials
-  const result = ipcRenderer.sendSync('save-credentials', { email, password, uuid, uuidPassword });
+  const result = ipcRenderer.sendSync('save-credentials', { email, password, uuid });
   // On successful save, move on
   if (result) {
     showMain();
@@ -69,6 +67,8 @@ connect.on('click', () => {
   // Disable the button to prevent user from clicking multiple times
   connect.prop('disabled', true);
   connect.text('Connecting...');
+  connect.hide();
+  $('#loading').show();
 });
 
 ipcRenderer.on('connected', (event, arg) => {
@@ -76,4 +76,12 @@ ipcRenderer.on('connected', (event, arg) => {
   connect.removeClass('btn-success').addClass('btn-danger');
   connect.prop('disabled', false);
   connect.text('Disconnect');
+});
+
+ipcRenderer.on('requested-dvp', (event, arg) => {
+  $('#loading-label').text('Awaiting response from server...');
+});
+
+ipcRenderer.on('received-dvp', (event, arg) => {
+  $('#loading-label').text('Received server response! Waiting for VPN...');
 });

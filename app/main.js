@@ -1,12 +1,12 @@
 const { app, ipcMain, BrowserWindow } = require('electron');
 const electronOauth2 = require('electron-oauth2');
-const Imap = require('imap');
 const path = require('path');
 const url = require('url');
 const keytar = require('keytar');
 const settings = require('electron-settings');
 const oauthConfig = require('./config.js');
 const mailbox = require('./mailbox.js');
+const proxy = require('./proxy-server.js');
 const api = require('./api.js');
 
 // Keep a global reference of the window object,
@@ -61,9 +61,7 @@ app.on('activate', () => {
 
 // Listens to the channel 'google-oauth' for an event
 ipcMain.on('google-oauth', (event, arg) => {
-  googleOAuth.getAccessToken({ 
-    scope: 'https://mail.google.com/&prompt=select_account'
-  })
+  googleOAuth.getAccessToken({ scope: 'https://mail.google.com/&prompt=select_account' })
     .then((token) => {
       event.sender.send('google-oauth-reply', token);
     }, (err) => {
@@ -96,36 +94,45 @@ ipcMain.on('save-credentials', (event, arg) => {
     domain: domain,
     email: email,
     uuid: arg.uuid,
-    uuidPassword: arg.uuidPassword,
   });
   // Return a synchronous success message
   event.returnValue = true;
-}); 
+});
 
 // Connect event handler.
 // Sends an email to the email server, parses JSON configuration
-// file, creates a .ovpn file, and connects to the DVP server. 
+// file, creates a .ovpn file, and connects to the DVP server.
 ipcMain.on('connect', async (event, arg) => {
   const email = settings.get('config.email');
-  
+  const uuid = settings.get('config.uuid');
+
   // Since retrieving passwords from keystore is async,
   // we have to use the await keyword to wait for the promise
   // to resolve.
   const password = await keytar.getPassword('CensorBuster', email);
 
-  // Send email to email server
+  // Send email to email server, connects to mailbox, listens for an incoming
+  // mail with DVP data, parses the JSON data, and finally start up local
+  // proxy that points to the DVP.
   api.sendMail(
     api.getSMTPSettings(settings.get('config.domain')),
     {
       from: email,
-      subject: `list`,
-      text: '',
+      subject: 'list',
+      text: uuid,
     },
     {
       username: email,
       password: password,
-    }
+    },
   )
-  .then(mailbox.connect)
-  .catch(console.err);
+  .then((credentials) => {
+    event.sender.send('requested-dvp', {});
+    return mailbox.start(credentials);
+  })
+  .then((dvp) => {
+    event.sender.send('received-dvp', {});
+    return proxy.start(dvp);
+  })
+  .catch(console.error);
 });
