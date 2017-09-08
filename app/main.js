@@ -1,10 +1,8 @@
 const { app, ipcMain, BrowserWindow } = require('electron');
-const electronOauth2 = require('electron-oauth2');
 const path = require('path');
 const url = require('url');
 const keytar = require('keytar');
 const settings = require('electron-settings');
-const oauthConfig = require('./config.js');
 const mailbox = require('./mailbox.js');
 const proxy = require('./proxy-server.js');
 const api = require('./api.js');
@@ -13,20 +11,9 @@ const api = require('./api.js');
 // else the object will be garbage collected.
 let window;
 
-// Window parameters for the OAuth pop-up window
-const windowParams = {
-  alwaysOnTop: true,
-  autoHideMenuBar: true,
-  webPreferences: {
-    nodeIntegration: false,
-  },
-};
-
-const googleOAuth = electronOauth2(oauthConfig, windowParams);
-
 function createWindow() {
   // Create the browser window
-  window = new BrowserWindow({ width: 400, height: 600 });
+  window = new BrowserWindow({ width: 480, height: 500 });
 
   // Remove the menu bar from the window
   window.setMenu(null);
@@ -59,16 +46,6 @@ app.on('activate', () => {
   }
 });
 
-// Listens to the channel 'google-oauth' for an event
-ipcMain.on('google-oauth', (event, arg) => {
-  googleOAuth.getAccessToken({ scope: 'https://mail.google.com/&prompt=select_account' })
-    .then((token) => {
-      event.sender.send('google-oauth-reply', token);
-    }, (err) => {
-      console.log('Error while getting token', err);
-    });
-});
-
 // Check if user has already set up their credentials
 ipcMain.on('has-credentials', (event, arg) => {
   // Checks to see if email and UUID exists
@@ -86,7 +63,7 @@ ipcMain.on('has-credentials', (event, arg) => {
 ipcMain.on('save-credentials', (event, arg) => {
   const email = arg.email;
   // Get the domain substring
-  let domain = email.substring(email.lastIndexOf('@') + 1, email.length);
+  const domain = email.substring(email.lastIndexOf('@') + 1, email.length);
   // Save user credentials to the native OS keystore.
   keytar.setPassword('CensorBuster', email, arg.password);
   // Save user data to the settings file.
@@ -97,6 +74,36 @@ ipcMain.on('save-credentials', (event, arg) => {
   });
   // Return a synchronous success message
   event.returnValue = true;
+});
+
+ipcMain.on('check-smtp', (event, arg) => {
+  const email = arg.email;
+  const domain = email.substring(email.lastIndexOf('@') + 1, email.length);
+  event.returnValue = api.getSMTPSettings(domain);
+});
+
+ipcMain.on('validate-email', async (event, arg) => {
+  const email = arg.email;
+  // Get the domain substring
+  const domain = email.substring(email.lastIndexOf('@') + 1, email.length);
+  await api.sendMail(
+    api.getSMTPSettings(domain),
+    {
+      from: email,
+      subject: 'Validating Email',
+      text: '',
+    },
+    {
+      username: email,
+      password: arg.password,
+    },
+  )
+  .then((credentials) => {
+    event.sender.send('validated-email', { success: true });
+  })
+  .catch((error) => {
+    event.sender.send('validated-email', { success: false });
+  });
 });
 
 // Connect event handler.

@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="./css/style.css">
   </head>
   <body>
-    <div class="container">
-      <div id="login" class="mt-4 hide">
-        <div id="email-view" class="form-group text-center">
-          <br>
-          <p class="lead">First, we'll need your email credentials</p>
+    <div class="container py-4">
+      <!-- Initial Application Setup View -->
+      <div id="setup" class="hide">
+        <!-- Email Credentials View -->
+        <div id="email-view" class="text-center">
+          <p id="email-header" class="lead">First, we'll need your email credentials</p>
+          <p id="email-header-invalid" class="hide lead">The email you've entered is invalid. Please try another.</p>
           <div class="form-group">
               <input type="text" id="email" name="email" class="form-control" placeholder="Email">
               <div class="invalid-feedback">
@@ -25,19 +27,48 @@
             <input type="password" id="password" name="password" class="form-control" placeholder="Password">
           </div>
           <br>
-          <button id="continue-email" class="btn btn-primary">Continue</button>
+          <button id="btn-continue-email" class="btn btn-primary">Continue</button>
         </div>
-        <div id="uuid-view" class="form-group text-center hide">
-          <br>
+        <!-- SMTP Configuration View -->
+        <div id="smtp-view" class="hide text-center">
+          <p class="lead">We couldn't determine your email provider.<br>
+            We'll need your SMTP and IMAP configuration.</p>
+          <section>
+            <label>SMTP</label>
+            <div class="form-group">
+                <input type="text" id="smtp" name="smtp" class="form-control" placeholder="Server Name">
+            </div>
+            <div class="form-group">
+              <input type="text" id="smtp-port" name="smtp-port" class="form-control" placeholder="Port">
+            </div>
+          </section>
+          <section>
+            <label>IMAP</label>
+            <div class="form-group">
+                <input type="text" id="imap" name="imap" class="form-control" placeholder="Server Name">
+            </div>
+            <div class="form-group">
+              <input type="text" id="imap-port" name="imap-port" class="form-control" placeholder="Port">
+            </div>
+          </section>
+          <button id="btn-continue-smtp" class="btn btn-primary">Continue</button>
+        </div>
+        <!-- Validate Email View -->
+        <div id="validate-email-view" class="text-center hide">
+          <p class="lead">Validating email credentials...</p>
+          <div class="loader mx-auto"></div>
+        </div>
+        <!-- UUID Credential View -->
+        <div id="uuid-view" class="text-center hide">
           <p class="lead">Lastly, we'll need your UUID credential from your invitation email.</p>
           <div class="form-group">
               <input type="text" id="uuid" name="uuid" class="form-control" placeholder="UUID">
           </div>
-          <button id="submit-uuid" class="btn btn-primary">Submit</button>
+          <button id="btn-submit-uuid" class="btn btn-primary">Submit</button>
         </div>
       </div>
+      <!-- Main Application View -->
       <div id="main" class="hide text-center">
-        <br>
         <button id="connect" class="btn btn-success">Connect</button>
         <div id="loading" class="hide">
           <p id="loading-label" class="lead">Initating censor busting protocol...</p>

@@ -1,18 +1,18 @@
-// app.js handles the look and feel of the application. All functionality
-// is piped through ipcRenderer and ipcMain to main.js
+// app.js handles the look and feel of the application. All logic should
+// be piped through ipcRenderer and ipcMain to main.js
 const ipcRenderer = require('electron').ipcRenderer;
 
 let email;
 let password;
 let uuid;
 
-function showLogin() {
+function showSetup() {
   $('#main').hide();
-  $('#login').show();
+  $('#setup').show();
 }
 
 function showMain() {
-  $('#login').hide();
+  $('#setup').hide();
   $('#main').show();
 }
 
@@ -26,23 +26,39 @@ $(document).ready(() => {
   if (result) {
     $('#main').show();
   } else {
-    $('#login').show();
+    $('#setup').show();
   }
 });
 
-$('#continue-email').on('click', () => {
+$('#btn-continue-email').on('click', () => {
   email = $('#email').val();
+
   if (validateEmail(email)) {
     $('#email').removeClass('is-invalid');
     password = $('#password').val();
-    $('#email-view').hide();
-    $('#uuid-view').show();
+
+    // Check email domain to see if its a recognized SMTP configuration.
+    const result = ipcRenderer.sendSync('check-smtp', { email });
+
+    console.log(result);
+    if (result === false) {
+      // If email provider isn't recognized, request the user to add
+      // the SMTP configuration manually.
+      $('#email-view').hide();
+      $('#smtp-view').show();
+    } else {
+      // If email provider is recognized, attempt to login using the
+      // credentials provided by the user.
+      ipcRenderer.send('validate-email', { email, password });
+      $('#email-view').hide();
+      $('#validate-email-view').show();
+    }
   } else {
     $('#email').addClass('is-invalid');
   }
 });
 
-$('#submit-uuid').on('click', () => {
+$('#btn-submit-uuid').on('click', () => {
   uuid = $('#uuid').val();
   // Synchronously save user credentials
   const result = ipcRenderer.sendSync('save-credentials', { email, password, uuid });
@@ -54,9 +70,19 @@ $('#submit-uuid').on('click', () => {
   }
 });
 
-$('#continue-password').on('click', () => {
-  password = $('#password').val();
-  showMain();
+ipcRenderer.on('validated-email', (event, arg) => {
+  if (arg.success) {
+    // If email credentials are valid, navigate to UUID view.
+    $('#validate-email-view').hide();
+    $('#uuid-view').show();
+  } else {
+    // If email credentials are not valid, return user back to email
+    // view and ask for credentials again.
+    $('#email-header').hide();
+    $('#email-header-invalid').show();
+    $('#validate-email-view').hide();
+    $('#email-view').show();
+  }
 });
 
 const connect = $('#connect');

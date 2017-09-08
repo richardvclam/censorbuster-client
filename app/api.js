@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-const oauthConfig = require('./config.js');
 
 /**
  * Returns a promise indicating whether sending the email was successful or not.
@@ -10,29 +9,12 @@ function sendMail(mailProtocol, message, credentials) {
     host: mailProtocol.host, // smtp.gmail.com
     port: mailProtocol.port, // 465
     secure: mailProtocol.port === 465, // true
-    // If there's an access token, use OAuth to authenticate
-    // otherwise just use plaintext password for verification.
-    /*
-    auth: accessToken ? {
-      type: 'OAuth2',
-      user: credentials.username,
-      clientId: oauthConfig.clientId,
-      clientSecret: oauthConfig.clientSecret,
-      accessToken,
-    } : {
-      user: credentials.username,
-      pass: credentials.password,
-    },
-    */
     auth: {
       user: credentials.username,
       pass: credentials.password,
     },
   });
 
-  // console.log(mailProtocol);
-  // console.log(message);
-  // console.log(credentials);
   const mailOptions = {
     from: message.from,
     to: 'censorbustorstest1@gmail.com',
