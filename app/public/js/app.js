@@ -23,6 +23,7 @@ function validateEmail(email) {
 
 $(document).ready(() => {
   const result = ipcRenderer.sendSync('has-credentials', {});
+
   if (result) {
     $('#main').show();
   } else {
@@ -85,7 +86,10 @@ ipcRenderer.on('validated-email', (event, arg) => {
   }
 });
 
+// Save the element from the DOM so the application doesn't
+// need to perform a lookup again.
 const connect = $('#connect');
+
 connect.on('click', () => {
   // Send an event down the pipeline to the main electron process
   ipcRenderer.send('connect', {});
@@ -98,16 +102,34 @@ connect.on('click', () => {
 });
 
 ipcRenderer.on('connected', (event, arg) => {
-  // Re-enable the button and changes it to 'Disconnect'
+  // Re-enable the button and change it to 'Disconnect'
   connect.removeClass('btn-success').addClass('btn-danger');
   connect.prop('disabled', false);
   connect.text('Disconnect');
 });
 
-ipcRenderer.on('requested-dvp', (event, arg) => {
-  $('#loading-label').text('Awaiting response from server...');
-});
+// Update the loading label with event messages to let
+// the user know what the applciation is currently doing.
+ipcRenderer.on('update-loading-label', (event, arg) => {
+  let message;
 
-ipcRenderer.on('received-dvp', (event, arg) => {
-  $('#loading-label').text('Received server response! Waiting for VPN...');
+  switch (arg.event) {
+    case 'requested-dvp':
+      message = 'Awaiting response from server...';
+      break;
+    case 'received-dvp':
+      message = 'Received server response! Waiting for VPN...';
+      break;
+    case 'start-ovpn':
+      message = 'Starting VPN! Attempting to establish connection...';
+      break;
+    case 'dvp-timeout':
+      message = 'Connection timed out. Reattempting to establish connection...';
+      break;
+    default:
+      message = '';
+  }
+
+  // Update the label with the event message
+  $('#loading-label').text(message);
 });

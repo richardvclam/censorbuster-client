@@ -1,8 +1,9 @@
 const { app, ipcMain, BrowserWindow } = require('electron');
+const settings = require('electron-settings');
+const { exec } = require('child_process');
+const keytar = require('keytar');
 const path = require('path');
 const url = require('url');
-const keytar = require('keytar');
-const settings = require('electron-settings');
 const mailbox = require('./mailbox.js');
 const proxy = require('./proxy-server.js');
 const api = require('./api.js');
@@ -134,12 +135,23 @@ ipcMain.on('connect', async (event, arg) => {
     },
   )
   .then((credentials) => {
-    event.sender.send('requested-dvp', {});
+    event.sender.send('update-loading-label', { event: 'requested-dvp' });
     return mailbox.start(credentials);
   })
   .then((dvp) => {
-    event.sender.send('received-dvp', {});
-    return proxy.start(dvp);
+    event.sender.send('update-loading-label', { event: 'received-dvp' });
+    // Parse the VPN configurations from the email and create an
+    // OVPN file.
+
+    return proxy.start(window, dvp);
+  })
+  .then((result) => {
+    if (result === true) {
+      event.sender.send('update-loading-label', { event: 'start-ovpn' });
+      // Start OpenVPN using the configuration file 'censorbuster.ovpn'.
+      // Pipe the command line output into the console
+      exec('openvpn ./app/ovpn/censorbuster.ovpn').stdout.pipe(process.stdout);
+    }
   })
   .catch(console.error);
 });
